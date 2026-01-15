@@ -17,15 +17,14 @@ export default function Login() {
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       const roleRoutes = {
-        CEO: "/admin",
-        DEPARTMENT_HEAD: "/department",
-        MANAGER: "/manager",
+        CEO: "/ceo",
+        DEPARTMENT_HEAD: "/department-head",
         TEAM_LEAD: "/team-lead",
         EMPLOYEE: "/employee",
       };
 
       navigate(roleRoutes[res.data.user.role]);
-    } catch {
+    } catch (err) {
       alert("Invalid credentials");
     }
   };

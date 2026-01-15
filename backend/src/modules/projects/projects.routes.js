@@ -16,28 +16,33 @@ router.use(requireAuth);
 // VIEW
 router.get(
   "/",
-  allowRoles("CEO", "ADMIN", "MANAGER", "TEAM_LEAD", "EMPLOYEE"),
+  allowRoles(
+    "CEO",
+    "DEPARTMENT_HEAD",
+    "TEAM_LEAD",
+    "EMPLOYEE"
+  ),
   listProjects
 );
 
 // CREATE
 router.post(
   "/",
-  allowRoles("CEO", "MANAGER"),
+  allowRoles("CEO", "DEPARTMENT_HEAD"),
   create
 );
 
 // UPDATE
 router.put(
   "/:id",
-  allowRoles("CEO", "ADMIN", "MANAGER"),
+  allowRoles("CEO", "DEPARTMENT_HEAD"),
   update
 );
 
 // DELETE
 router.delete(
   "/:id",
-  allowRoles("CEO", "ADMIN", "MANAGER"),
+  allowRoles("CEO", "DEPARTMENT_HEAD"),
   remove
 );
 

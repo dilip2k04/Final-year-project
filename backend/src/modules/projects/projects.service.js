@@ -8,11 +8,8 @@ import Department from "../../models/Department.js";
 export const getAllProjects = async (user) => {
   const filter = {};
 
-  if (user.role === "MANAGER") {
-    filter.$or = [
-      { managerId: user._id },
-      { departmentId: user.departmentId },
-    ];
+  if (user.role === "DEPARTMENT_HEAD") {
+    filter.departmentId = user.departmentId;
   }
 
   if (user.role === "TEAM_LEAD") {
@@ -22,10 +19,11 @@ export const getAllProjects = async (user) => {
   if (user.role === "EMPLOYEE") {
     filter.employees = user._id;
   }
+  // CEO → no filter
 
   return Project.find(filter)
     .populate("departmentId", "name")
-    .populate("managerId", "name")
+    .populate("departmentHeadId", "name")
     .populate("teamLeadId", "name")
     .populate("employees", "name");
 };
@@ -34,18 +32,19 @@ export const getAllProjects = async (user) => {
    CREATE PROJECT
 ====================== */
 export const createProject = async (data, user) => {
-  if (!["MANAGER", "CEO"].includes(user.role)) {
-    throw new Error("Only Managers or CEO can create projects");
+  if (!["CEO", "DEPARTMENT_HEAD"].includes(user.role)) {
+    throw new Error("Only CEO or Department Head can create projects");
   }
 
   const { name, teamLeadId, employees = [] } = data;
-
   if (!name || !teamLeadId) {
     throw new Error("Name & Team Lead are required");
   }
 
   const departmentId =
-    user.role === "MANAGER" ? user.departmentId : data.departmentId;
+    user.role === "DEPARTMENT_HEAD"
+      ? user.departmentId
+      : data.departmentId;
 
   if (!departmentId) {
     throw new Error("Department is required");
@@ -77,41 +76,38 @@ export const createProject = async (data, user) => {
   return Project.create({
     name,
     departmentId,
-    managerId: user.role === "MANAGER" ? user._id : null,
+    departmentHeadId:
+      user.role === "DEPARTMENT_HEAD" ? user._id : null,
     teamLeadId,
     employees,
   });
 };
 
 /* ======================
-   UPDATE PROJECT (🔥 FIXED)
+   UPDATE PROJECT
 ====================== */
 export const updateProject = async (id, data, user) => {
   const project = await Project.findById(id);
   if (!project) throw new Error("Project not found");
 
-  // CEO & ADMIN → unrestricted
-  if (["CEO", "ADMIN"].includes(user.role)) {
+  if (user.role === "CEO") {
     await Project.findByIdAndUpdate(id, data);
   }
 
-  // MANAGER → department-based
-  if (user.role === "MANAGER") {
-    if (!user.departmentId)
-      throw new Error("Manager has no department");
-
+  if (user.role === "DEPARTMENT_HEAD") {
     if (
-      project.departmentId.toString() !== user.departmentId.toString()
-    )
+      project.departmentId.toString() !==
+      user.departmentId.toString()
+    ) {
       throw new Error("You can update only your department projects");
+    }
 
     await Project.findByIdAndUpdate(id, data);
   }
 
-  // 🔥 ALWAYS re-fetch populated document
   return Project.findById(id)
     .populate("departmentId", "name")
-    .populate("managerId", "name")
+    .populate("departmentHeadId", "name")
     .populate("teamLeadId", "name")
     .populate("employees", "name");
 };
@@ -123,12 +119,12 @@ export const deleteProject = async (id, user) => {
   const project = await Project.findById(id);
   if (!project) throw new Error("Project not found");
 
-  if (["CEO", "ADMIN"].includes(user.role)) {
+  if (user.role === "CEO") {
     await Project.findByIdAndDelete(id);
     return;
   }
 
-  if (user.role === "MANAGER") {
+  if (user.role === "DEPARTMENT_HEAD") {
     if (
       project.departmentId.toString() !==
       user.departmentId.toString()

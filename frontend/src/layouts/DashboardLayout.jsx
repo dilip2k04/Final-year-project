@@ -15,6 +15,7 @@ export default function DashboardLayout() {
 
   const logout = () => {
     doLogout();
+    navigate("/login");
   };
 
   return (
@@ -53,28 +54,27 @@ export default function DashboardLayout() {
 }
 
 function SidebarLinks({ role }) {
-  const common = [{ label: "Dashboard", path: "" }];
-
   const linksByRole = {
     CEO: [
-      ...common,
-      { label: "Departments", path: "departments" },
-      { label: "Reports", path: "reports" },
+      { label: "Dashboard", path: "" },
       { label: "Users", path: "users" },
+      { label: "Departments", path: "departments" },
       { label: "Projects", path: "projects" },
+    ],
 
-    ],
-    MANAGER: [
-      ...common,
+    DEPARTMENT_HEAD: [
+      { label: "Dashboard", path: "" },
       { label: "Projects", path: "projects" },
     ],
+
     TEAM_LEAD: [
-      ...common,
+      { label: "Dashboard", path: "" },
       { label: "My Team", path: "team" },
       { label: "Tasks", path: "tasks" },
     ],
+
     EMPLOYEE: [
-      ...common,
+      { label: "Dashboard", path: "" },
       { label: "My Tasks", path: "tasks" },
     ],
   };

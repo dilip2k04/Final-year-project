@@ -5,27 +5,32 @@ const ProjectSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
+      trim: true,
     },
 
     departmentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Department",
       required: true,
+      index: true,
     },
 
-    // ❌ WAS required:true
-    managerId: {
+    // 👤 Department Head who owns this project
+    departmentHeadId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      default: null,        // ✅ CEO projects have no manager
+      index: true,
     },
 
+    // 👤 Team Lead responsible for execution
     teamLeadId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true,
     },
 
+    // 👥 Employees working on project
     employees: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -33,7 +38,9 @@ const ProjectSchema = new mongoose.Schema(
       },
     ],
   },
-  { timestamps: true }
+  {
+    timestamps: true, // ✅ createdAt & updatedAt
+  }
 );
 
 export default mongoose.model("Project", ProjectSchema);

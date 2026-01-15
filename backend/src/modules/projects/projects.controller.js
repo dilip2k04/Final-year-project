@@ -1,7 +1,7 @@
 import * as service from "./projects.service.js";
 
 /* ======================
-   LIST PROJECTS
+   LIST
 ====================== */
 export const listProjects = async (req, res) => {
   const projects = await service.getAllProjects(req.user);
@@ -9,7 +9,7 @@ export const listProjects = async (req, res) => {
 };
 
 /* ======================
-   CREATE PROJECT
+   CREATE
 ====================== */
 export const create = async (req, res) => {
   try {
@@ -21,7 +21,7 @@ export const create = async (req, res) => {
 };
 
 /* ======================
-   UPDATE PROJECT
+   UPDATE
 ====================== */
 export const update = async (req, res) => {
   try {
@@ -32,19 +32,14 @@ export const update = async (req, res) => {
     );
     res.json(project);
   } catch (e) {
-    const isPermissionError =
-      e.message.includes("only") ||
-      e.message.includes("Unauthorized") ||
-      e.message.includes("cannot");
-
-    res.status(isPermissionError ? 403 : 400).json({
-      message: e.message,
-    });
+    res.status(
+      e.message.includes("only") ? 403 : 400
+    ).json({ message: e.message });
   }
 };
 
 /* ======================
-   DELETE PROJECT
+   DELETE
 ====================== */
 export const remove = async (req, res) => {
   try {

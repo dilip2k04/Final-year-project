@@ -2,29 +2,32 @@ import User from "../../models/User.js";
 import Project from "../../models/Project.js";
 import Department from "../../models/Department.js";
 
-export const getManagerDashboard = async (req, res) => {
+export const getDepartmentHeadDashboard = async (req, res) => {
   try {
-    const manager = req.user;
+    const departmentHead = req.user;
 
-    // Manager must have department
-    if (!manager.departmentId) {
-      return res.status(400).json({ message: "Manager has no department" });
+    if (!departmentHead.departmentId) {
+      return res
+        .status(400)
+        .json({ message: "Department Head has no department assigned" });
     }
 
-    const department = await Department.findById(manager.departmentId);
+    const department = await Department.findById(
+      departmentHead.departmentId
+    );
 
     const teamLeads = await User.countDocuments({
       role: "TEAM_LEAD",
-      departmentId: manager.departmentId,
+      departmentId: departmentHead.departmentId,
     });
 
     const employees = await User.countDocuments({
       role: "EMPLOYEE",
-      departmentId: manager.departmentId,
+      departmentId: departmentHead.departmentId,
     });
 
     const projects = await Project.countDocuments({
-      managerId: manager._id,
+      departmentId: departmentHead.departmentId,
     });
 
     res.json({

@@ -4,13 +4,14 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardLayout from "./layouts/DashboardLayout";
 
 import CeoDashboard from "./pages/dashboards/CeoDashboard";
-import ManagerDashboard from "./pages/dashboards/ManagerDashboard";
+import DepartmentHeadDashboard from "./pages/dashboards/DepartmentHeadDashboard";
 import TlDashboard from "./pages/dashboards/TlDashboard";
 import EmployeeDashboard from "./pages/dashboards/EmployeeDashboard";
-import ManagerProjects from "./pages/manager/ManagerProjects";
-import Users from "./pages/admin/Users"
-import Departments from "./pages/admin/Departments"; 
-import Projects from "./pages/admin/Projects";
+
+import Users from "./pages/ceo/Users";
+import Departments from "./pages/ceo/Departments";
+import Projects from "./pages/ceo/Projects";
+import DepartmentHeadProjects from "./pages/departmentHead/DepartmentHeadProjects";
 
 export default function App() {
   return (
@@ -19,7 +20,7 @@ export default function App() {
 
       {/* CEO */}
       <Route
-        path="/admin"
+        path="/ceo"
         element={
           <ProtectedRoute allowedRoles={["CEO"]}>
             <DashboardLayout />
@@ -32,17 +33,17 @@ export default function App() {
         <Route path="projects" element={<Projects />} />
       </Route>
 
-      {/* MANAGER */}
+      {/* DEPARTMENT HEAD */}
       <Route
-        path="/manager"
+        path="/department-head"
         element={
-          <ProtectedRoute allowedRoles={["MANAGER"]}>
+          <ProtectedRoute allowedRoles={["DEPARTMENT_HEAD"]}>
             <DashboardLayout />
           </ProtectedRoute>
         }
       >
-        <Route index element={<ManagerDashboard />} />
-        <Route path="projects" element={<ManagerProjects />} />
+        <Route index element={<DepartmentHeadDashboard />} />
+        <Route path="projects" element={<DepartmentHeadProjects />} />
       </Route>
 
       {/* TEAM LEAD */}
