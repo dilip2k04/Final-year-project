@@ -54,30 +54,30 @@ export default function DashboardLayout() {
 }
 
 function SidebarLinks({ role }) {
-  const linksByRole = {
-    CEO: [
-      { label: "Dashboard", path: "" },
-      { label: "Users", path: "users" },
-      { label: "Departments", path: "departments" },
-      { label: "Projects", path: "projects" },
-    ],
+const linksByRole = {
+  CEO: [
+    { label: "Dashboard", path: "" },
+    { label: "Departments", path: "departments" },
+    { label: "Users", path: "users" },
+    { label: "Projects", path: "projects" },
+  ],
 
-    DEPARTMENT_HEAD: [
-      { label: "Dashboard", path: "" },
-      { label: "Projects", path: "projects" },
-    ],
+  DEPARTMENT_HEAD: [
+    { label: "Dashboard", path: "" },
+    { label: "Projects", path: "projects" },
+  ],
 
-    TEAM_LEAD: [
-      { label: "Dashboard", path: "" },
-      { label: "My Team", path: "team" },
-      { label: "Tasks", path: "tasks" },
-    ],
+  TEAM_LEAD: [
+    { label: "Dashboard", path: "" },
+    { label: "My Projects", path: "projects" },
+  ],
 
-    EMPLOYEE: [
-      { label: "Dashboard", path: "" },
-      { label: "My Tasks", path: "tasks" },
-    ],
-  };
+  EMPLOYEE: [
+    { label: "Dashboard", path: "" },
+    { label: "My Tasks", path: "tasks" },
+  ],
+};
+
 
   return (
     <>

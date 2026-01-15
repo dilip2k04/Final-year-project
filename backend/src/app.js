@@ -7,6 +7,7 @@ import departmentRoutes from "./modules/departments/departments.routes.js";
 import projectRoutes from "./modules/projects/projects.routes.js";
 import metaRoutes from "./modules/meta/meta.routes.js";
 import departmentHeadRoutes from "./modules/departmentHead/departmentHead.routes.js";
+import taskRoutes from "./modules/tasks/tasks.routes.js";
 
 const app = express();
 
@@ -34,5 +35,6 @@ app.use("/api/departments", departmentRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/meta", metaRoutes);
 app.use("/api/department-head", departmentHeadRoutes);
+app.use("/api/tasks", taskRoutes);
 
 export default app;

@@ -1,7 +1,7 @@
 import * as service from "./projects.service.js";
 
 /* ======================
-   LIST
+   LIST PROJECTS
 ====================== */
 export const listProjects = async (req, res) => {
   const projects = await service.getAllProjects(req.user);
@@ -9,7 +9,23 @@ export const listProjects = async (req, res) => {
 };
 
 /* ======================
-   CREATE
+   GET PROJECT BY ID ✅ REQUIRED
+====================== */
+export const getProjectById = async (req, res) => {
+  try {
+    const project = await service.getProjectById(
+      req.params.id,
+      req.user
+    );
+    res.json(project);
+  } catch (e) {
+    res.status(e.status || 403).json({ message: e.message });
+  }
+};
+
+
+/* ======================
+   CREATE PROJECT
 ====================== */
 export const create = async (req, res) => {
   try {
@@ -21,7 +37,7 @@ export const create = async (req, res) => {
 };
 
 /* ======================
-   UPDATE
+   UPDATE PROJECT
 ====================== */
 export const update = async (req, res) => {
   try {
@@ -32,14 +48,12 @@ export const update = async (req, res) => {
     );
     res.json(project);
   } catch (e) {
-    res.status(
-      e.message.includes("only") ? 403 : 400
-    ).json({ message: e.message });
+    res.status(403).json({ message: e.message });
   }
 };
 
 /* ======================
-   DELETE
+   DELETE PROJECT
 ====================== */
 export const remove = async (req, res) => {
   try {
