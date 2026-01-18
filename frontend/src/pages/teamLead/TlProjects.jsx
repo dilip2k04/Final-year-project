@@ -26,14 +26,25 @@ export default function TlProjects() {
             </div>
           </div>
 
-          <button
-            onClick={() =>
-              navigate(`/team-lead/projects/${p._id}/tasks`)
-            }
-            className="text-blue-600 underline"
-          >
-            View Tasks
-          </button>
+          <div className="flex gap-4">
+            <button
+              onClick={() =>
+                navigate(`/projects/${p._id}/tasks`)
+              }
+              className="text-blue-600 underline"
+            >
+              Tasks
+            </button>
+
+            <button
+              onClick={() =>
+                navigate(`/projects/${p._id}/documents`)
+              }
+              className="text-green-600 underline"
+            >
+              Documents
+            </button>
+          </div>
         </div>
       ))}
     </div>

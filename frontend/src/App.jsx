@@ -9,7 +9,7 @@ import DepartmentHeadDashboard from "./pages/dashboards/DepartmentHeadDashboard"
 import TlDashboard from "./pages/dashboards/TlDashboard";
 import EmployeeDashboard from "./pages/dashboards/EmployeeDashboard";
 
-/* CEO Pages */
+/* CEO */
 import Users from "./pages/ceo/Users";
 import Departments from "./pages/ceo/Departments";
 import Projects from "./pages/ceo/Projects";
@@ -23,6 +23,9 @@ import ProjectTasks from "./pages/teamLead/ProjectTasks";
 
 /* Employee */
 import MyTasks from "./pages/employee/MyTasks";
+
+/* Documents */
+import ProjectDocuments from "./pages/common/ProjectDocuments";
 
 export default function App() {
   return (
@@ -82,6 +85,27 @@ export default function App() {
       >
         <Route index element={<EmployeeDashboard />} />
         <Route path="tasks" element={<MyTasks />} />
+      </Route>
+
+      {/* ============= PROJECT DOCUMENTS (ALL ROLES) ============= */}
+      <Route
+        element={
+          <ProtectedRoute
+            allowedRoles={[
+              "CEO",
+              "DEPARTMENT_HEAD",
+              "TEAM_LEAD",
+              "EMPLOYEE",
+            ]}
+          >
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route
+          path="/projects/:projectId/documents"
+          element={<ProjectDocuments />}
+        />
       </Route>
 
       <Route path="*" element={<Login />} />

@@ -1,9 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ChevronDown, ChevronRight, FileText } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function MyTasks() {
   const [tasks, setTasks] = useState([]);
+  const [openProjects, setOpenProjects] = useState({});
+  const navigate = useNavigate();
 
   const load = async () => {
     const res = await api.get("/tasks/my");
@@ -19,26 +24,138 @@ export default function MyTasks() {
     load();
   }, []);
 
+  /* =========================
+     Group tasks by project
+  ========================= */
+  const grouped = useMemo(() => {
+    return tasks.reduce((acc, t) => {
+      const id = t.projectId?._id;
+      if (!id) return acc;
+
+      if (!acc[id]) {
+        acc[id] = {
+          name: t.projectId.name,
+          tasks: [],
+        };
+      }
+
+      acc[id].tasks.push(t);
+      return acc;
+    }, {});
+  }, [tasks]);
+
+  const statusColor = status => {
+    switch (status) {
+      case "DONE":
+        return "bg-green-100 text-green-700";
+      case "IN_PROGRESS":
+        return "bg-blue-100 text-blue-700";
+      default:
+        return "bg-gray-100 text-gray-600";
+    }
+  };
+
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-bold">My Tasks</h2>
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold">My Tasks</h2>
 
-      {tasks.map(t => (
-        <div key={t._id} className="border p-3 rounded">
-          <b>{t.title}</b>
-          <div>Project: {t.projectId?.name}</div>
-          <div>Status: {t.status}</div>
+      {Object.entries(grouped).map(([projectId, project]) => {
+        const done = project.tasks.filter(t => t.status === "DONE").length;
 
-          <div className="space-x-2 mt-2">
-            <Button size="sm" onClick={() => updateStatus(t._id, "IN_PROGRESS")}>
-              In Progress
-            </Button>
-            <Button size="sm" onClick={() => updateStatus(t._id, "DONE")}>
-              Done
-            </Button>
+        return (
+          <div
+            key={projectId}
+            className="rounded-xl border bg-white shadow-sm"
+          >
+            {/* ================= PROJECT HEADER ================= */}
+            <div
+              className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted"
+              onClick={() =>
+                setOpenProjects(p => ({
+                  ...p,
+                  [projectId]: !p[projectId],
+                }))
+              }
+            >
+              <div className="flex items-center gap-3">
+                {openProjects[projectId] ? (
+                  <ChevronDown size={18} />
+                ) : (
+                  <ChevronRight size={18} />
+                )}
+
+                <div>
+                  <div className="font-semibold">{project.name}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {done}/{project.tasks.length} completed
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <Badge variant="secondary">
+                  {project.tasks.length} Tasks
+                </Badge>
+
+                {/* 📂 DOCUMENTS BUTTON */}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/projects/${projectId}/documents`);
+                  }}
+                >
+                  <FileText className="w-4 h-4 mr-1" />
+                  Documents
+                </Button>
+              </div>
+            </div>
+
+            {/* ================= TASK LIST ================= */}
+            {openProjects[projectId] && (
+              <div className="divide-y">
+                {project.tasks.map(t => (
+                  <div
+                    key={t._id}
+                    className="flex items-center justify-between p-4 hover:bg-muted/50"
+                  >
+                    <div className="space-y-1">
+                      <div className="font-medium">{t.title}</div>
+                      <Badge className={statusColor(t.status)}>
+                        {t.status.replace("_", " ")}
+                      </Badge>
+                    </div>
+
+                    <div className="flex gap-2">
+                      {t.status !== "IN_PROGRESS" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() =>
+                            updateStatus(t._id, "IN_PROGRESS")
+                          }
+                        >
+                          In Progress
+                        </Button>
+                      )}
+
+                      {t.status !== "DONE" && (
+                        <Button
+                          size="sm"
+                          onClick={() => updateStatus(t._id, "DONE")}
+                        >
+                          Done
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
