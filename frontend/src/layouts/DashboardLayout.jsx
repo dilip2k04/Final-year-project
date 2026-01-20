@@ -1,8 +1,9 @@
+// DashboardLayout.jsx - Make sure it has export default
 import { Outlet, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { getUser, logout as doLogout } from "@/lib/auth";
 
-export default function DashboardLayout() {
+function DashboardLayout() {
   const user = getUser();
   const navigate = useNavigate();
 
@@ -56,18 +57,22 @@ function SidebarLinks({ role }) {
       { label: "Departments", path: "departments" },
       { label: "Users", path: "users" },
       { label: "Projects", path: "projects" },
+      { label: "AI Assistant", path: "ai" } // Changed from "/ai" to "ai"
     ],
     DEPARTMENT_HEAD: [
       { label: "Dashboard", path: "" },
       { label: "Projects", path: "projects" },
+      { label: "AI Assistant", path: "ai" } // Changed from "/ai" to "ai"
     ],
     TEAM_LEAD: [
       { label: "Dashboard", path: "" },
       { label: "My Projects", path: "projects" },
+      { label: "AI Assistant", path: "ai" } // Changed from "/ai" to "ai"
     ],
     EMPLOYEE: [
       { label: "Dashboard", path: "" },
       { label: "My Tasks", path: "tasks" },
+      { label: "AI Assistant", path: "ai" } // Changed from "/ai" to "ai"
     ],
   };
 
@@ -85,3 +90,6 @@ function SidebarLinks({ role }) {
     </>
   );
 }
+
+// MAKE SURE THIS LINE IS AT THE BOTTOM
+export default DashboardLayout;

@@ -1,3 +1,4 @@
+// App.jsx - CORRECTED WITH IMPORTS
 import { Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -27,6 +28,8 @@ import MyTasks from "./pages/employee/MyTasks";
 /* Documents */
 import ProjectDocuments from "./pages/common/ProjectDocuments";
 
+import AIAssistant from "./pages/common/AIAssistant";
+
 export default function App() {
   return (
     <Routes>
@@ -45,6 +48,7 @@ export default function App() {
         <Route path="users" element={<Users />} />
         <Route path="departments" element={<Departments />} />
         <Route path="projects" element={<Projects />} />
+        <Route path="ai" element={<AIAssistant />} />
       </Route>
 
       {/* ========== DEPARTMENT HEAD ========== */}
@@ -58,6 +62,7 @@ export default function App() {
       >
         <Route index element={<DepartmentHeadDashboard />} />
         <Route path="projects" element={<DepartmentHeadProjects />} />
+        <Route path="ai" element={<AIAssistant />} />
       </Route>
 
       {/* ============= TEAM LEAD ============= */}
@@ -72,6 +77,7 @@ export default function App() {
         <Route index element={<TlDashboard />} />
         <Route path="projects" element={<TlProjects />} />
         <Route path="projects/:projectId/tasks" element={<ProjectTasks />} />
+        <Route path="ai" element={<AIAssistant />} />
       </Route>
 
       {/* ============= EMPLOYEE ============= */}
@@ -85,10 +91,12 @@ export default function App() {
       >
         <Route index element={<EmployeeDashboard />} />
         <Route path="tasks" element={<MyTasks />} />
+        <Route path="ai" element={<AIAssistant />} />
       </Route>
 
       {/* ============= PROJECT DOCUMENTS (ALL ROLES) ============= */}
       <Route
+        path="/projects/:projectId/documents"
         element={
           <ProtectedRoute
             allowedRoles={[
@@ -102,10 +110,7 @@ export default function App() {
           </ProtectedRoute>
         }
       >
-        <Route
-          path="/projects/:projectId/documents"
-          element={<ProjectDocuments />}
-        />
+        <Route index element={<ProjectDocuments />} />
       </Route>
 
       <Route path="*" element={<Login />} />
