@@ -15,14 +15,12 @@ const ProjectSchema = new mongoose.Schema(
       index: true,
     },
 
-    // 👤 Department Head who owns this project
     departmentHeadId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       index: true,
     },
 
-    // 👤 Team Lead responsible for execution
     teamLeadId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -30,16 +28,30 @@ const ProjectSchema = new mongoose.Schema(
       index: true,
     },
 
-    // 👥 Employees working on project
     employees: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
     ],
+
+    /* ======================
+       ✅ NEW STATUS FIELD
+    ====================== */
+    status: {
+      type: String,
+      enum: [
+        "NOT_STARTED",
+        "IN_PROGRESS",
+        "COMPLETED",
+        "BLOCKED",
+      ],
+      default: "NOT_STARTED",
+      index: true,
+    },
   },
   {
-    timestamps: true, // ✅ createdAt & updatedAt
+    timestamps: true,
   }
 );
 

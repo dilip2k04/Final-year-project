@@ -12,26 +12,40 @@ export default function DepartmentHeadProjects() {
   const [employees, setEmployees] = useState([]);
 
   /* ============================
-     Load users of SAME department
+     LOAD USERS (PARALLEL + SAFE)
   ============================ */
   useEffect(() => {
     if (!user?.departmentId) return;
 
-    api
-      .get(
-        `/meta/users?role=TEAM_LEAD&departmentId=${user.departmentId}`
-      )
-      .then((r) => setTeamLeads(r.data));
+    const load = async () => {
+      try {
+        const [tl, emp] = await Promise.all([
+          api.get(`/meta/users`, {
+            params: {
+              role: "TEAM_LEAD",
+              departmentId: user.departmentId,
+            },
+          }),
+          api.get(`/meta/users`, {
+            params: {
+              role: "EMPLOYEE",
+              departmentId: user.departmentId,
+            },
+          }),
+        ]);
 
-    api
-      .get(
-        `/meta/users?role=EMPLOYEE&departmentId=${user.departmentId}`
-      )
-      .then((r) => setEmployees(r.data));
-  }, [user]);
+        setTeamLeads(tl.data || []);
+        setEmployees(emp.data || []);
+      } catch (e) {
+        console.error("Failed loading users", e);
+      }
+    };
+
+    load();
+  }, [user?.departmentId]);
 
   /* ============================
-     Dynamic form fields
+     IMPORTANT: value MUST be string id only
   ============================ */
   const fields = useMemo(
     () => [
@@ -45,7 +59,7 @@ export default function DepartmentHeadProjects() {
         type: "select",
         options: teamLeads.map((u) => ({
           label: u.name,
-          value: u._id,
+          value: String(u._id), // ⭐ force string
         })),
       },
       {
@@ -54,7 +68,7 @@ export default function DepartmentHeadProjects() {
         type: "multiselect",
         options: employees.map((u) => ({
           label: u.name,
-          value: u._id,
+          value: String(u._id), // ⭐ force string
         })),
       },
     ],

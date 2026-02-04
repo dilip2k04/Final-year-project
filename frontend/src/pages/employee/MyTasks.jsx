@@ -10,14 +10,12 @@ export default function MyTasks() {
   const [openProjects, setOpenProjects] = useState({});
   const navigate = useNavigate();
 
+  /* =========================
+     LOAD TASKS
+  ========================= */
   const load = async () => {
     const res = await api.get("/tasks/my");
-    setTasks(res.data);
-  };
-
-  const updateStatus = async (id, status) => {
-    await api.put(`/tasks/${id}/status`, { status });
-    load();
+    setTasks(res.data || []);
   };
 
   useEffect(() => {
@@ -25,26 +23,52 @@ export default function MyTasks() {
   }, []);
 
   /* =========================
-     Group tasks by project
+     🚀 OPTIMISTIC STATUS UPDATE
+     (no reload)
+  ========================= */
+  const updateStatus = async (id, status) => {
+    // instant UI update
+    setTasks((prev) =>
+      prev.map((t) =>
+        t._id === id ? { ...t, status } : t
+      )
+    );
+
+    try {
+      await api.put(`/tasks/${id}/status`, { status });
+    } catch {
+      // revert if failed
+      load();
+    }
+  };
+
+  /* =========================
+     GROUP TASKS BY PROJECT
   ========================= */
   const grouped = useMemo(() => {
-    return tasks.reduce((acc, t) => {
-      const id = t.projectId?._id;
-      if (!id) return acc;
+    const map = {};
 
-      if (!acc[id]) {
-        acc[id] = {
+    for (const t of tasks) {
+      const pid = t.projectId?._id;
+      if (!pid) continue;
+
+      if (!map[pid]) {
+        map[pid] = {
           name: t.projectId.name,
           tasks: [],
         };
       }
 
-      acc[id].tasks.push(t);
-      return acc;
-    }, {});
+      map[pid].tasks.push(t);
+    }
+
+    return map;
   }, [tasks]);
 
-  const statusColor = status => {
+  /* =========================
+     STATUS COLORS
+  ========================= */
+  const statusColor = (status) => {
     switch (status) {
       case "DONE":
         return "bg-green-100 text-green-700";
@@ -55,12 +79,19 @@ export default function MyTasks() {
     }
   };
 
+  /* =========================
+     UI
+  ========================= */
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">My Tasks</h2>
 
       {Object.entries(grouped).map(([projectId, project]) => {
-        const done = project.tasks.filter(t => t.status === "DONE").length;
+        const done = project.tasks.filter(
+          (t) => t.status === "DONE"
+        ).length;
+
+        const isOpen = openProjects[projectId];
 
         return (
           <div
@@ -71,21 +102,23 @@ export default function MyTasks() {
             <div
               className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted"
               onClick={() =>
-                setOpenProjects(p => ({
+                setOpenProjects((p) => ({
                   ...p,
                   [projectId]: !p[projectId],
                 }))
               }
             >
               <div className="flex items-center gap-3">
-                {openProjects[projectId] ? (
+                {isOpen ? (
                   <ChevronDown size={18} />
                 ) : (
                   <ChevronRight size={18} />
                 )}
 
                 <div>
-                  <div className="font-semibold">{project.name}</div>
+                  <div className="font-semibold">
+                    {project.name}
+                  </div>
                   <div className="text-xs text-muted-foreground">
                     {done}/{project.tasks.length} completed
                   </div>
@@ -97,7 +130,7 @@ export default function MyTasks() {
                   {project.tasks.length} Tasks
                 </Badge>
 
-                {/* 📂 DOCUMENTS BUTTON */}
+                {/* ✅ documents route (global) */}
                 <Button
                   size="sm"
                   variant="outline"
@@ -113,16 +146,21 @@ export default function MyTasks() {
             </div>
 
             {/* ================= TASK LIST ================= */}
-            {openProjects[projectId] && (
+            {isOpen && (
               <div className="divide-y">
-                {project.tasks.map(t => (
+                {project.tasks.map((t) => (
                   <div
                     key={t._id}
                     className="flex items-center justify-between p-4 hover:bg-muted/50"
                   >
                     <div className="space-y-1">
-                      <div className="font-medium">{t.title}</div>
-                      <Badge className={statusColor(t.status)}>
+                      <div className="font-medium">
+                        {t.title}
+                      </div>
+
+                      <Badge
+                        className={statusColor(t.status)}
+                      >
                         {t.status.replace("_", " ")}
                       </Badge>
                     </div>
@@ -133,7 +171,10 @@ export default function MyTasks() {
                           size="sm"
                           variant="outline"
                           onClick={() =>
-                            updateStatus(t._id, "IN_PROGRESS")
+                            updateStatus(
+                              t._id,
+                              "IN_PROGRESS"
+                            )
                           }
                         >
                           In Progress
@@ -143,7 +184,9 @@ export default function MyTasks() {
                       {t.status !== "DONE" && (
                         <Button
                           size="sm"
-                          onClick={() => updateStatus(t._id, "DONE")}
+                          onClick={() =>
+                            updateStatus(t._id, "DONE")
+                          }
                         >
                           Done
                         </Button>

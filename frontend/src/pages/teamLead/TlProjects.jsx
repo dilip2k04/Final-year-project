@@ -27,15 +27,17 @@ export default function TlProjects() {
           </div>
 
           <div className="flex gap-4">
+            {/* ✅ FIXED */}
             <button
               onClick={() =>
-                navigate(`/projects/${p._id}/tasks`)
+                navigate(`${p._id}/tasks`)
               }
               className="text-blue-600 underline"
             >
               Tasks
             </button>
 
+            {/* documents is global route */}
             <button
               onClick={() =>
                 navigate(`/projects/${p._id}/documents`)
